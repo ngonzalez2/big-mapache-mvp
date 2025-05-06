@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Big Mapache MVP</title>
+</head>
+<body>
+  <h1>Invoices</h1>
+  <form id="invoice-form">
+    <input type="text" id="client" placeholder="Client name" required>
+    <input type="number" id="amount" placeholder="Amount" required>
+    <button type="submit">Create Invoice</button>
+  </form>
+  <ul id="invoices"></ul>
+
+  <script>
+    async function fetchInvoices() {
+      const res = await fetch('/api/invoices');
+      const invoices = await res.json();
+      const list = document.getElementById('invoices');
+      list.innerHTML = '';
+      invoices.forEach(inv => {
+        const li = document.createElement('li');
+        li.textContent = `${inv.client} - COP${inv.amount} - ${new Date(inv.issued_at).toLocaleString()}`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('invoice-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const client = document.getElementById('client').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client, amount })
+      });
+      e.target.reset();
+      fetchInvoices();
+    });
+
+    fetchInvoices();
+  </script>
+</body>
+</html>
