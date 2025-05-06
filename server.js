@@ -19,7 +19,7 @@ db.serialize(() => {
 });
 
 app.get('/api/invoices', (req, res) => {
-  db.all('SELECT * FROM invoices', (err, rows) => {
+  db.all('SELECT * FROM invoices ORDER BY issued_at DESC', (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
