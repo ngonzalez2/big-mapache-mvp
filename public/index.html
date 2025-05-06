@@ -8,7 +8,11 @@
   <h1>Invoices</h1>
   <form id="invoice-form">
     <input type="text" id="client" placeholder="Client name" required>
-    <input type="number" id="amount" placeholder="Amount" required>
+    <input type="number" id="amount" placeholder="Amount" required step="0.01">
+    <select id="currency">
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+    </select>
     <button type="submit">Create Invoice</button>
   </form>
   <ul id="invoices"></ul>
@@ -20,8 +24,13 @@
       const list = document.getElementById('invoices');
       list.innerHTML = '';
       invoices.forEach(inv => {
+        const formatter = new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency: inv.currency
+        });
+        const formatted = formatter.format(inv.amount);
         const li = document.createElement('li');
-        li.textContent = `${inv.client} - COP${inv.amount} - ${new Date(inv.issued_at).toLocaleString()}`;
+        li.textContent = `${inv.client} - ${formatted} - ${new Date(inv.issued_at).toLocaleString()}`;
         list.appendChild(li);
       });
     }
@@ -30,10 +39,11 @@
       e.preventDefault();
       const client = document.getElementById('client').value;
       const amount = parseFloat(document.getElementById('amount').value);
+      const currency = document.getElementById('currency').value;
       await fetch('/api/invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client, amount })
+        body: JSON.stringify({ client, amount, currency })
       });
       e.target.reset();
       fetchInvoices();
@@ -43,3 +53,4 @@
   </script>
 </body>
 </html>
+
